@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SRDS_SN", "SRDS_SN\SRDS_SN.csproj", "{C2E92AF4-54F6-4E91-BF88-1A23DBB66CAF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C2E92AF4-54F6-4E91-BF88-1A23DBB66CAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2E92AF4-54F6-4E91-BF88-1A23DBB66CAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2E92AF4-54F6-4E91-BF88-1A23DBB66CAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2E92AF4-54F6-4E91-BF88-1A23DBB66CAF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2CCC4AE0-0288-4346-A5FE-994F23F8B599}
+	EndGlobalSection
+EndGlobal

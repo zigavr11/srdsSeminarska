@@ -35,7 +35,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define PDM_BUFFER_SIZE 128
+#define PDM_BUFFER_SIZE 100
+#define PCM_BUFFER_SIZE 16
 #define M_PI   3.14159265358979323846 /* pi */
 /* USER CODE END PD */
 
@@ -48,6 +49,7 @@
 CRC_HandleTypeDef hcrc;
 
 I2S_HandleTypeDef hi2s2;
+DMA_HandleTypeDef hdma_spi2_rx;
 
 /* USER CODE BEGIN PV */
 
@@ -56,8 +58,9 @@ I2S_HandleTypeDef hi2s2;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_CRC_Init(void);
+static void MX_DMA_Init(void);
 static void MX_I2S2_Init(void);
+static void MX_CRC_Init(void);
 /* USER CODE BEGIN PFP */
 
 float absFloat(float floa) {
@@ -92,7 +95,11 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+  uint16_t sound_in[1600];
+int binary[1600],temp[1600];
+int buf[1600];
+int vol = 0,sum = 0;
+char buffer[100];
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -104,20 +111,21 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USB_DEVICE_Init();
+  MX_DMA_Init();
+  MX_I2S2_Init();
   MX_CRC_Init();
   MX_PDM2PCM_Init();
-  MX_I2S2_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-
+  __HAL_RCC_CRC_CLK_ENABLE();
   //teoreticno 16 PDM -> 1 PCM 16* 16 ali 32 odvisno od filtra
   uint16_t PDM_Signal[PDM_BUFFER_SIZE];
   //16 je povezana z številko saamples pri pdm2pcm
-  uint16_t PCM_Signal[16];
+  uint16_t PCM_Signal[PCM_BUFFER_SIZE];
 
   uint8_t json[200];
   int stevec = 0;
-  //HAL_I2S_Receive_DMA(&hi2s2, &PDM_Signal[0], 160);
+  //HAL_I2S_Receive_DMA(&hi2s2, &PDM_Signal, PDM_BUFFER_SIZE);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -128,22 +136,56 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
+
+		  int vol=0;
+		  	  HAL_I2S_Receive(&hi2s2,sound_in, 50, 1000);
+
+		  	  for (int i = 0; i < 50; i++) {
+		  		for (int j = 0; j < 16; j++) {
+		  			binary[j] = sound_in[i] % 2;
+		  			sound_in[i] = sound_in[i]/2;
+		  		}
+
+		  		//reverse
+		  		for (int j = 0; j < 16; j++) {
+		  			temp[i * 16 + j] = binary[15 - j];
+		  		}
+		  	  }
+		  	  int i =7;
+		  	  while(i + 8 < 50*16){
+		  	     int sum = 0;
+		  	     for (int j = -7; j <= 8; j++)
+		  	      sum += temp[i + j];
+		  	     if(sum - 8 < 0)  buf[i]=-(sum-8);
+		  	     buf[i] = sum-8;
+		  	     i++;
+		  	  }
+
+
+		  	for (int i = 14; i + 16 < 50*16; i++) {
+		  		for (int j = -7; j <= 8; j++)
+		  			vol += buf[i + j];
+		}
+
+		//int nac = sprintf(buffer,"vol: \r\n",vol);
 		//HAL_Delay(500);
 		//Size = dolizni PDM_Signala
-		/*AL_I2S_Receive(&hi2s2, PDM_Signal, PDM_BUFFER_SIZE, 10);
+		//HAL_I2S_Receive(&hi2s2, PDM_Signal, PDM_BUFFER_SIZE, 10);
 
-		PDM_Filter(&PDM_Signal[0], &PCM_Signal[0], &PDM1_filter_handler);
+		//PDM_Filter(&PDM_Signal[0], &PCM_Signal[0], &PDM1_filter_handler);
 
-		memset(json, 0, sizeof(json));
+		//memset(json, 0, sizeof(json));
 
-		sprintf(json, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n\r", PCM_Signal[0], PCM_Signal[1],PCM_Signal[2],
+		/*sprintf(json, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n\r", PCM_Signal[0], PCM_Signal[1],PCM_Signal[2],
 				PCM_Signal[3], PCM_Signal[4], PCM_Signal[5],
 				PCM_Signal[6], PCM_Signal[7], PCM_Signal[8],
 				PCM_Signal[9], PCM_Signal[10], PCM_Signal[11],
 				PCM_Signal[12], PCM_Signal[13], PCM_Signal[14],  PCM_Signal[15]);
+*/
+		//while(CDC_Transmit_FS((uint8_t*)&buffer, nac));
 
-		HAL_I2S_Transmit(&hi2s3, (uint16_t*)&PCM_Signal, 16, 10);*/
-		//while(CDC_Transmit_FS((uint8_t*)PCM_Signal, 32));
+		sprintf(json, "{\"MAG\":%d, \"X\":%.3f, \"Y\":%.3f, \"Z\":%.3f}\n\r", 1,1,1,1);
+		while(CDC_Transmit_FS((uint8_t*)&json, 55));
 		//PDM_Filter poglej si!
 
 
@@ -256,7 +298,7 @@ static void MX_I2S2_Init(void)
   hi2s2.Init.AudioFreq = I2S_AUDIOFREQ_16K;
   hi2s2.Init.CPOL = I2S_CPOL_LOW;
   hi2s2.Init.ClockSource = I2S_CLOCK_PLL;
-  hi2s2.Init.FullDuplexMode = I2S_FULLDUPLEXMODE_DISABLE;
+  hi2s2.Init.FullDuplexMode = I2S_FULLDUPLEXMODE_ENABLE;
   if (HAL_I2S_Init(&hi2s2) != HAL_OK)
   {
     Error_Handler();
@@ -268,78 +310,34 @@ static void MX_I2S2_Init(void)
 }
 
 /**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Stream3_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream3_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream3_IRQn);
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
   */
 static void MX_GPIO_Init(void)
 {
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(CS_I2C_SPI_GPIO_Port, CS_I2C_SPI_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(OTG_FS_PowerSwitchOn_GPIO_Port, OTG_FS_PowerSwitchOn_Pin, GPIO_PIN_SET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, LD4_Pin|LD3_Pin|LD5_Pin|LD6_Pin
-                          |Audio_RST_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin : PE2 */
-  GPIO_InitStruct.Pin = GPIO_PIN_2;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : CS_I2C_SPI_Pin */
-  GPIO_InitStruct.Pin = CS_I2C_SPI_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(CS_I2C_SPI_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PE4 PE5 MEMS_INT2_Pin */
-  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5|MEMS_INT2_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_EVT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : OTG_FS_PowerSwitchOn_Pin */
-  GPIO_InitStruct.Pin = OTG_FS_PowerSwitchOn_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(OTG_FS_PowerSwitchOn_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PA0 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0;
-  GPIO_InitStruct.Mode = GPIO_MODE_EVT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : LD4_Pin LD3_Pin LD5_Pin LD6_Pin
-                           Audio_RST_Pin */
-  GPIO_InitStruct.Pin = LD4_Pin|LD3_Pin|LD5_Pin|LD6_Pin
-                          |Audio_RST_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : OTG_FS_OverCurrent_Pin */
-  GPIO_InitStruct.Pin = OTG_FS_OverCurrent_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(OTG_FS_OverCurrent_GPIO_Port, &GPIO_InitStruct);
+  __HAL_RCC_GPIOA_CLK_ENABLE();
 
 }
 
