@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
+extern DMA_HandleTypeDef hdma_spi2_rx;
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
@@ -143,18 +144,10 @@ void HAL_I2S_MspInit(I2S_HandleTypeDef* hi2s)
     __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
     /**I2S2 GPIO Configuration
-    PC2     ------> I2S2_ext_SD
     PC3     ------> I2S2_SD
     PB10     ------> I2S2_CK
     PB12     ------> I2S2_WS
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_2;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF6_I2S2ext;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
     GPIO_InitStruct.Pin = GPIO_PIN_3;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -168,6 +161,25 @@ void HAL_I2S_MspInit(I2S_HandleTypeDef* hi2s)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /* I2S2 DMA Init */
+    /* SPI2_RX Init */
+    hdma_spi2_rx.Instance = DMA1_Stream3;
+    hdma_spi2_rx.Init.Channel = DMA_CHANNEL_0;
+    hdma_spi2_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_spi2_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_spi2_rx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_spi2_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+    hdma_spi2_rx.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+    hdma_spi2_rx.Init.Mode = DMA_CIRCULAR;
+    hdma_spi2_rx.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_spi2_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    if (HAL_DMA_Init(&hdma_spi2_rx) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
+    __HAL_LINKDMA(hi2s,hdmarx,hdma_spi2_rx);
 
   /* USER CODE BEGIN SPI2_MspInit 1 */
 
@@ -193,15 +205,16 @@ void HAL_I2S_MspDeInit(I2S_HandleTypeDef* hi2s)
     __HAL_RCC_SPI2_CLK_DISABLE();
 
     /**I2S2 GPIO Configuration
-    PC2     ------> I2S2_ext_SD
     PC3     ------> I2S2_SD
     PB10     ------> I2S2_CK
     PB12     ------> I2S2_WS
     */
-    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_2|GPIO_PIN_3);
+    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_3);
 
     HAL_GPIO_DeInit(GPIOB, GPIO_PIN_10|GPIO_PIN_12);
 
+    /* I2S2 DMA DeInit */
+    HAL_DMA_DeInit(hi2s->hdmarx);
   /* USER CODE BEGIN SPI2_MspDeInit 1 */
 
   /* USER CODE END SPI2_MspDeInit 1 */

@@ -25,7 +25,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "usbd_cdc_if.h"
-#include "global.h"
 #include <math.h>
 /* USER CODE END Includes */
 
@@ -36,7 +35,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define PDM_BUFFER_SIZE 100
+#define PDM_BUFFER_SIZE 128
 #define PCM_BUFFER_SIZE 16
 //16 je povezana z številko samplov pri pdm2pcm
 
@@ -52,14 +51,23 @@
 CRC_HandleTypeDef hcrc;
 
 I2S_HandleTypeDef hi2s2;
+DMA_HandleTypeDef hdma_spi2_rx;
 
 /* USER CODE BEGIN PV */
+
+uint16_t PDM_Signal[PDM_BUFFER_SIZE];
+uint16_t PCM_Signal[PCM_BUFFER_SIZE];
+
+uint8_t sporocilo[100];
+uint16_t stevec = 0;
+int stanje = -1;
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_I2S2_Init(void);
 static void MX_CRC_Init(void);
 /* USER CODE BEGIN PFP */
@@ -70,6 +78,19 @@ float absFloat(float floa) {
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+void PosljiPodatke(uint16_t PCM[]){
+	HAL_I2S_DMAPause(&hi2s2);
+	memset(sporocilo, 0, sizeof(sporocilo));
+	sprintf(sporocilo, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d \n\r", PCM[0], PCM[1],PCM[2],
+			PCM[3], PCM[4], PCM[5],
+			PCM[6], PCM[7], PCM[8],
+			PCM[9], PCM[10], PCM[11],
+			PCM[12], PCM[13], PCM[14],  PCM[15]);
+
+	while(CDC_Transmit_FS((uint8_t*)&sporocilo, 100));
+	HAL_I2S_DMAResume(&hi2s2);
+}
 
 /* USER CODE END 0 */
 
@@ -101,6 +122,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_I2S2_Init();
   MX_USB_DEVICE_Init();
   MX_CRC_Init();
@@ -108,11 +130,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
   __HAL_RCC_CRC_CLK_ENABLE();
 
-  uint16_t PDM_Signal[PDM_BUFFER_SIZE];
-  uint16_t PCM_Signal[PCM_BUFFER_SIZE];
 
-  uint8_t json[100];
-  uint16_t stevec = 0;
+
+  HAL_I2S_Receive_DMA(&hi2s2, PDM_Signal, PDM_BUFFER_SIZE);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -124,22 +144,20 @@ int main(void)
     /* USER CODE BEGIN 3 */
 	//CDC_Transmit_FS((uint8_t*)"OI", 7);
 	//Size = dolizni PDM_Signala
-	HAL_Delay(1000);
-	HAL_I2S_Receive(&hi2s2, PDM_Signal, PDM_BUFFER_SIZE, 10);
-	stevec++;
-	PDM_Filter(&PDM_Signal[0], &PCM_Signal[0], &PDM1_filter_handler);
+	if(stanje == 1){
+		PDM_Filter(&PDM_Signal[0], &PCM_Signal[0], &PDM1_filter_handler);
+		stanje = 0;
+		while(CDC_Transmit_FS((uint8_t*)&PCM_Signal, 32));
+		//PosljiPodatke(PCM_Signal);
+	}
+	if(stanje == 2){
+		PDM_Filter(&PDM_Signal[0], &PCM_Signal[0], &PDM1_filter_handler);
+		stanje = 0;
+		while(CDC_Transmit_FS((uint8_t*)&PCM_Signal, 32));
+	}
 
-	memset(json, 0, sizeof(json));
-
-	sprintf(json, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n\r", PCM_Signal[0], PCM_Signal[1],PCM_Signal[2],
-	PCM_Signal[3], PCM_Signal[4], PCM_Signal[5],
-	PCM_Signal[6], PCM_Signal[7], PCM_Signal[8],
-	PCM_Signal[9], PCM_Signal[10], PCM_Signal[11],
-	PCM_Signal[12], PCM_Signal[13], PCM_Signal[14],  PCM_Signal[15]);
-
-	while(CDC_Transmit_FS((uint8_t*)&json, 100));
-  /* USER CODE END 3 */
   }
+  /* USER CODE END 3 */
 }
 
 /**
@@ -244,7 +262,7 @@ static void MX_I2S2_Init(void)
   hi2s2.Init.AudioFreq = I2S_AUDIOFREQ_16K;
   hi2s2.Init.CPOL = I2S_CPOL_LOW;
   hi2s2.Init.ClockSource = I2S_CLOCK_PLL;
-  hi2s2.Init.FullDuplexMode = I2S_FULLDUPLEXMODE_ENABLE;
+  hi2s2.Init.FullDuplexMode = I2S_FULLDUPLEXMODE_DISABLE;
   if (HAL_I2S_Init(&hi2s2) != HAL_OK)
   {
     Error_Handler();
@@ -256,22 +274,69 @@ static void MX_I2S2_Init(void)
 }
 
 /**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Stream3_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream3_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream3_IRQn);
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
   */
 static void MX_GPIO_Init(void)
 {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : PD12 PD13 PD14 PD15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
 }
 
 /* USER CODE BEGIN 4 */
+
+void HAL_I2S_RxHalfCpltCallback(I2S_HandleTypeDef *hi2s){
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
+	stanje = 1;
+}
+
+void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s){
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
+	stanje = 2;
+}
+
+void HAL_I2S_ErrorCallback(I2S_HandleTypeDef *hi2s){
+	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
+	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
+	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
+	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
+}
 
 /* USER CODE END 4 */
 
