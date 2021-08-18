@@ -151,7 +151,7 @@ int main(void)
 		//PosljiPodatke(PCM_Signal);
 	}
 	if(stanje == 2){
-		PDM_Filter(&PDM_Signal[0], &PCM_Signal[0], &PDM1_filter_handler);
+		PDM_Filter(&PDM_Signal[64], &PCM_Signal[0], &PDM1_filter_handler);
 		stanje = 0;
 		while(CDC_Transmit_FS((uint8_t*)&PCM_Signal, 32));
 	}
