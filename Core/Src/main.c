@@ -58,8 +58,6 @@ DMA_HandleTypeDef hdma_spi2_rx;
 uint16_t PDM_Signal[PDM_BUFFER_SIZE];
 uint16_t PCM_Signal[PCM_BUFFER_SIZE];
 
-uint8_t sporocilo[100];
-uint16_t stevec = 0;
 int stanje = -1;
 
 /* USER CODE END PV */
@@ -78,19 +76,6 @@ float absFloat(float floa) {
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-void PosljiPodatke(uint16_t PCM[]){
-	HAL_I2S_DMAPause(&hi2s2);
-	memset(sporocilo, 0, sizeof(sporocilo));
-	sprintf(sporocilo, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d \n\r", PCM[0], PCM[1],PCM[2],
-			PCM[3], PCM[4], PCM[5],
-			PCM[6], PCM[7], PCM[8],
-			PCM[9], PCM[10], PCM[11],
-			PCM[12], PCM[13], PCM[14],  PCM[15]);
-
-	while(CDC_Transmit_FS((uint8_t*)&sporocilo, 100));
-	HAL_I2S_DMAResume(&hi2s2);
-}
 
 /* USER CODE END 0 */
 
