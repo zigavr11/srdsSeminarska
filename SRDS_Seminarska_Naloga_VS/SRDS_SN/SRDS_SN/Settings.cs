@@ -23,5 +23,7 @@ namespace SRDS_SN
         public static int SteviloBytov;
         public static int Rate;
         public static int Bits;
+
+        public static bool FloatNumbers;
     }
 }

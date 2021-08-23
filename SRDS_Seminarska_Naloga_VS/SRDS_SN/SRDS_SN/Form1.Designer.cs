@@ -95,6 +95,7 @@
             this.label8 = new System.Windows.Forms.Label();
             this.panel3 = new System.Windows.Forms.Panel();
             this.button2 = new System.Windows.Forms.Button();
+            this.floatNumbers = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.streamingAudioPCM)).BeginInit();
@@ -306,6 +307,7 @@
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.floatNumbers);
             this.panel2.Controls.Add(this.button1);
             this.panel2.Controls.Add(this.groupBox1);
             this.panel2.Controls.Add(this.groupBox4);
@@ -614,6 +616,17 @@
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
+            // floatNumbers
+            // 
+            this.floatNumbers.AutoSize = true;
+            this.floatNumbers.Location = new System.Drawing.Point(0, 348);
+            this.floatNumbers.Name = "floatNumbers";
+            this.floatNumbers.Size = new System.Drawing.Size(92, 17);
+            this.floatNumbers.TabIndex = 7;
+            this.floatNumbers.Text = "Float numbers";
+            this.floatNumbers.UseVisualStyleBackColor = true;
+            this.floatNumbers.CheckedChanged += new System.EventHandler(this.floatNumbers_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -645,6 +658,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.recordedAudioWAV)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.streamingAudioWAV)).EndInit();
             this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox4.ResumeLayout(false);
@@ -710,6 +724,7 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.CheckBox floatNumbers;
     }
 }
 

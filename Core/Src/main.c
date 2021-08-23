@@ -26,6 +26,7 @@
 /* USER CODE BEGIN Includes */
 #include "usbd_cdc_if.h"
 #include <math.h>
+#include "kiss_fft.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -35,6 +36,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define SIGNAL_SIZE 256
 #define PDM_BUFFER_SIZE 128
 #define PCM_BUFFER_SIZE 16
 //16 je povezana z številko samplov pri pdm2pcm
@@ -57,9 +59,14 @@ DMA_HandleTypeDef hdma_spi2_rx;
 
 uint16_t PDM_Signal[PDM_BUFFER_SIZE];
 uint16_t PCM_Signal[PCM_BUFFER_SIZE];
+uint16_t Signal[SIGNAL_SIZE];
+float FFTSignal[SIGNAL_SIZE];
 
-int stanje = -1;
+kiss_fft_cpx in[SIGNAL_SIZE], out[SIGNAL_SIZE];
 
+uint16_t stanje = -1;
+uint8_t stevec_signala = 0;
+uint8_t index_posljenih_signalov = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -76,6 +83,27 @@ float absFloat(float floa) {
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+void DodajVSignal(uint16_t podatek){
+	Signal[stevec_signala] = podatek;
+	stevec_signala++;
+		/*
+		kiss_fft_cfg cfg = kiss_fft_alloc( SIGNAL_SIZE, 0, 0, 0);
+		for(int i = 0; i < SIGNAL_SIZE; i++){
+			in[i].r = Signal[i] / (float)65535;
+			in[i].i = 0;
+		}
+		kiss_fft(cfg, in, out);
+		for(int i = 0; i < SIGNAL_SIZE; i++){
+			FFTSignal[i] = out[i].r;
+		}
+		free(cfg);*/
+}
+
+void PosljiPodatke(){
+	CDC_Transmit_FS((uint8_t*)&Signal[index_posljenih_signalov], SIGNAL_SIZE * 2);
+	index_posljenih_signalov++;
+}
 
 /* USER CODE END 0 */
 
@@ -127,18 +155,24 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	//CDC_Transmit_FS((uint8_t*)"OI", 7);
-	//Size = dolizni PDM_Signala
 	if(stanje == 1){
 		PDM_Filter(&PDM_Signal[0], &PCM_Signal[0], &PDM1_filter_handler);
+		for(int i = 0; i < PCM_BUFFER_SIZE; i++){
+			DodajVSignal(PCM_Signal[i]);
+		}
+		if(stevec_signala > 128)
+			PosljiPodatke();
 		stanje = 0;
-		while(CDC_Transmit_FS((uint8_t*)&PCM_Signal, 32));
+
 		//PosljiPodatke(PCM_Signal);
 	}
 	if(stanje == 2){
 		PDM_Filter(&PDM_Signal[64], &PCM_Signal[0], &PDM1_filter_handler);
+		for(int i = 0; i < PCM_BUFFER_SIZE; i++){
+			DodajVSignal(PCM_Signal[i]);
+		}
 		stanje = 0;
-		while(CDC_Transmit_FS((uint8_t*)&PCM_Signal, 32));
+		//while(CDC_Transmit_FS((uint8_t*)&PCM_Signal, 32));
 	}
 
   }
