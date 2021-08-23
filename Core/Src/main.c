@@ -35,7 +35,10 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define PDM_BUFFER_SIZE 128
+#define AUDIO_BUFFER_SIZE 4096
+#define N 16
+
+#define PDM_BUFFER_SIZE 64
 #define PCM_BUFFER_SIZE 16
 //16 je povezana z številko samplov pri pdm2pcm
 
@@ -55,8 +58,11 @@ DMA_HandleTypeDef hdma_spi2_rx;
 
 /* USER CODE BEGIN PV */
 
+int16_t Buffer[AUDIO_BUFFER_SIZE];
 uint16_t PDM_Signal[PDM_BUFFER_SIZE];
 uint16_t PCM_Signal[PCM_BUFFER_SIZE];
+
+uint16_t buffer_stevec = 0;
 
 int stanje = -1;
 
@@ -69,14 +75,37 @@ static void MX_DMA_Init(void);
 static void MX_I2S2_Init(void);
 static void MX_CRC_Init(void);
 /* USER CODE BEGIN PFP */
+
 float absFloat(float floa) {
 	return floa < 0 ? -floa : floa;
 }
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void NastaviLuckeGledeNaGlastnost(int16_t glasnost){
+	glasnost = abs(glasnost);
+	if(glasnost < 5000){
+		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
+	}
+	if(glasnost > 5000 && glasnost < 10000){
+		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
+	}
+	if(glasnost > 10000 && glasnost < 20000){
+		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
+	}
+	if(glasnost > 20000){
+		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
+	}
+}
 
+void PonastaviLucke(){
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
+}
 /* USER CODE END 0 */
 
 /**
@@ -130,17 +159,40 @@ int main(void)
 	//CDC_Transmit_FS((uint8_t*)"OI", 7);
 	//Size = dolizni PDM_Signala
 	if(stanje == 1){
-		PDM_Filter(&PDM_Signal[0], &PCM_Signal[0], &PDM1_filter_handler);
 		stanje = 0;
-		while(CDC_Transmit_FS((uint8_t*)&PCM_Signal, 32));
+
+		PDM_Filter(&PDM_Signal[0], &PCM_Signal[0], &PDM1_filter_handler);
+		//CDC_Transmit_FS((uint8_t*)&PCM_Signal, PCM_BUFFER_SIZE * 2);
+
+		if(buffer_stevec < AUDIO_BUFFER_SIZE){
+			for(int i = 0; i < 16; i++){
+				Buffer[buffer_stevec] = PCM_Signal[i];
+				buffer_stevec++;
+			}
+		}
+		else{
+			int16_t res_ma[AUDIO_BUFFER_SIZE];
+			float ma_zvezdica = Buffer[0];
+
+			for (int i = 0; i < AUDIO_BUFFER_SIZE; i++)
+			{
+				ma_zvezdica = ma_zvezdica + Buffer[i] - (ma_zvezdica / N);
+				res_ma[i] = ma_zvezdica / N;
+				//NastaviLuckeGledeNaGlastnost(res_ma[i]);
+			}
+
+			//CDC_Transmit_FS((uint8_t*)&res_ma, AUDIO_BUFFER_SIZE * 2);
+			CDC_Transmit_FS((uint8_t*)&res_ma, AUDIO_BUFFER_SIZE * 2);
+			buffer_stevec = 0;
+		}
+
+
+
+		/*for(int i = 0; i < PCM_BUFFER_SIZE; i++){
+			printf("i: %d\n", PCM_Signal[i]);
+		}*/
 		//PosljiPodatke(PCM_Signal);
 	}
-	if(stanje == 2){
-		PDM_Filter(&PDM_Signal[64], &PCM_Signal[0], &PDM1_filter_handler);
-		stanje = 0;
-		while(CDC_Transmit_FS((uint8_t*)&PCM_Signal, 32));
-	}
-
   }
   /* USER CODE END 3 */
 }
@@ -244,7 +296,7 @@ static void MX_I2S2_Init(void)
   hi2s2.Init.Standard = I2S_STANDARD_MSB;
   hi2s2.Init.DataFormat = I2S_DATAFORMAT_16B;
   hi2s2.Init.MCLKOutput = I2S_MCLKOUTPUT_DISABLE;
-  hi2s2.Init.AudioFreq = I2S_AUDIOFREQ_16K;
+  hi2s2.Init.AudioFreq = I2S_AUDIOFREQ_32K;
   hi2s2.Init.CPOL = I2S_CPOL_LOW;
   hi2s2.Init.ClockSource = I2S_CLOCK_PLL;
   hi2s2.Init.FullDuplexMode = I2S_FULLDUPLEXMODE_DISABLE;
@@ -304,16 +356,8 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-void HAL_I2S_RxHalfCpltCallback(I2S_HandleTypeDef *hi2s){
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
-	stanje = 1;
-}
-
 void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s){
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
-	stanje = 2;
+	stanje = 1;
 }
 
 void HAL_I2S_ErrorCallback(I2S_HandleTypeDef *hi2s){

@@ -29,24 +29,25 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea7 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend7 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend5 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea6 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend6 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Series series7 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea8 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend8 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series8 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea9 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend9 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series9 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea10 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend10 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series10 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea11 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend11 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series11 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea12 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend12 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series12 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.panel1 = new System.Windows.Forms.Panel();
             this.shrani_button = new System.Windows.Forms.Button();
             this.prekini_povezavo = new System.Windows.Forms.Button();
@@ -95,6 +96,8 @@
             this.label8 = new System.Windows.Forms.Label();
             this.panel3 = new System.Windows.Forms.Panel();
             this.button2 = new System.Windows.Forms.Button();
+            this.label11 = new System.Windows.Forms.Label();
+            this.N_TB = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.streamingAudioPCM)).BeginInit();
@@ -213,17 +216,17 @@
             // 
             // streamingAudioPCM
             // 
-            chartArea7.Name = "ChartArea1";
-            this.streamingAudioPCM.ChartAreas.Add(chartArea7);
-            legend7.Name = "Legend1";
-            this.streamingAudioPCM.Legends.Add(legend7);
+            chartArea1.Name = "ChartArea1";
+            this.streamingAudioPCM.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.streamingAudioPCM.Legends.Add(legend1);
             this.streamingAudioPCM.Location = new System.Drawing.Point(242, 27);
             this.streamingAudioPCM.Name = "streamingAudioPCM";
-            series7.ChartArea = "ChartArea1";
-            series7.Legend = "Legend1";
-            series7.Name = "Zvok";
-            series7.YValuesPerPoint = 6;
-            this.streamingAudioPCM.Series.Add(series7);
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Zvok";
+            series1.YValuesPerPoint = 6;
+            this.streamingAudioPCM.Series.Add(series1);
             this.streamingAudioPCM.Size = new System.Drawing.Size(922, 128);
             this.streamingAudioPCM.TabIndex = 8;
             this.streamingAudioPCM.Text = "chart1";
@@ -234,34 +237,35 @@
             // 
             // streamingChartFFT
             // 
-            chartArea8.Name = "ChartArea1";
-            this.streamingChartFFT.ChartAreas.Add(chartArea8);
-            legend8.Name = "Legend1";
-            this.streamingChartFFT.Legends.Add(legend8);
+            chartArea2.Name = "ChartArea1";
+            this.streamingChartFFT.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            this.streamingChartFFT.Legends.Add(legend2);
             this.streamingChartFFT.Location = new System.Drawing.Point(242, 351);
             this.streamingChartFFT.Name = "streamingChartFFT";
-            series8.ChartArea = "ChartArea1";
-            series8.Legend = "Legend1";
-            series8.Name = "Zvok";
-            series8.YValuesPerPoint = 6;
-            this.streamingChartFFT.Series.Add(series8);
+            series2.ChartArea = "ChartArea1";
+            series2.Legend = "Legend1";
+            series2.Name = "Zvok";
+            series2.YValuesPerPoint = 6;
+            this.streamingChartFFT.Series.Add(series2);
             this.streamingChartFFT.Size = new System.Drawing.Size(922, 141);
             this.streamingChartFFT.TabIndex = 9;
             this.streamingChartFFT.Text = "chart1";
+            this.streamingChartFFT.Visible = false;
             // 
             // recordedAudioWAV
             // 
-            chartArea9.Name = "ChartArea1";
-            this.recordedAudioWAV.ChartAreas.Add(chartArea9);
-            legend9.Name = "Legend1";
-            this.recordedAudioWAV.Legends.Add(legend9);
+            chartArea3.Name = "ChartArea1";
+            this.recordedAudioWAV.ChartAreas.Add(chartArea3);
+            legend3.Name = "Legend1";
+            this.recordedAudioWAV.Legends.Add(legend3);
             this.recordedAudioWAV.Location = new System.Drawing.Point(242, 622);
             this.recordedAudioWAV.Name = "recordedAudioWAV";
-            series9.ChartArea = "ChartArea1";
-            series9.Legend = "Legend1";
-            series9.Name = "Zvok";
-            series9.YValuesPerPoint = 6;
-            this.recordedAudioWAV.Series.Add(series9);
+            series3.ChartArea = "ChartArea1";
+            series3.Legend = "Legend1";
+            series3.Name = "Zvok";
+            series3.YValuesPerPoint = 6;
+            this.recordedAudioWAV.Series.Add(series3);
             this.recordedAudioWAV.Size = new System.Drawing.Size(932, 138);
             this.recordedAudioWAV.TabIndex = 10;
             this.recordedAudioWAV.Text = "chart2";
@@ -288,24 +292,25 @@
             // 
             // streamingAudioWAV
             // 
-            chartArea10.Name = "ChartArea1";
-            this.streamingAudioWAV.ChartAreas.Add(chartArea10);
-            legend10.Name = "Legend1";
-            this.streamingAudioWAV.Legends.Add(legend10);
-            this.streamingAudioWAV.Location = new System.Drawing.Point(3, 632);
+            chartArea4.Name = "ChartArea1";
+            this.streamingAudioWAV.ChartAreas.Add(chartArea4);
+            legend4.Name = "Legend1";
+            this.streamingAudioWAV.Legends.Add(legend4);
+            this.streamingAudioWAV.Location = new System.Drawing.Point(242, 351);
             this.streamingAudioWAV.Name = "streamingAudioWAV";
-            series10.ChartArea = "ChartArea1";
-            series10.Legend = "Legend1";
-            series10.Name = "Zvok";
-            series10.YValuesPerPoint = 6;
-            this.streamingAudioWAV.Series.Add(series10);
-            this.streamingAudioWAV.Size = new System.Drawing.Size(142, 128);
+            series4.ChartArea = "ChartArea1";
+            series4.Legend = "Legend1";
+            series4.Name = "Zvok";
+            series4.YValuesPerPoint = 6;
+            this.streamingAudioWAV.Series.Add(series4);
+            this.streamingAudioWAV.Size = new System.Drawing.Size(922, 230);
             this.streamingAudioWAV.TabIndex = 11;
             this.streamingAudioWAV.Text = "chart1";
-            this.streamingAudioWAV.Visible = false;
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.N_TB);
+            this.panel2.Controls.Add(this.label11);
             this.panel2.Controls.Add(this.button1);
             this.panel2.Controls.Add(this.groupBox1);
             this.panel2.Controls.Add(this.groupBox4);
@@ -528,7 +533,7 @@
             this.steviloBytov_TB.Name = "steviloBytov_TB";
             this.steviloBytov_TB.Size = new System.Drawing.Size(133, 20);
             this.steviloBytov_TB.TabIndex = 0;
-            this.steviloBytov_TB.Text = "12000";
+            this.steviloBytov_TB.Text = "24000";
             // 
             // Rate_TB
             // 
@@ -540,17 +545,17 @@
             // 
             // streamingAudioWAVBytes
             // 
-            chartArea11.Name = "ChartArea1";
-            this.streamingAudioWAVBytes.ChartAreas.Add(chartArea11);
-            legend11.Name = "Legend1";
-            this.streamingAudioWAVBytes.Legends.Add(legend11);
-            this.streamingAudioWAVBytes.Location = new System.Drawing.Point(3, 632);
+            chartArea5.Name = "ChartArea1";
+            this.streamingAudioWAVBytes.ChartAreas.Add(chartArea5);
+            legend5.Name = "Legend1";
+            this.streamingAudioWAVBytes.Legends.Add(legend5);
+            this.streamingAudioWAVBytes.Location = new System.Drawing.Point(15, 591);
             this.streamingAudioWAVBytes.Name = "streamingAudioWAVBytes";
-            series11.ChartArea = "ChartArea1";
-            series11.Legend = "Legend1";
-            series11.Name = "Zvok";
-            series11.YValuesPerPoint = 6;
-            this.streamingAudioWAVBytes.Series.Add(series11);
+            series5.ChartArea = "ChartArea1";
+            series5.Legend = "Legend1";
+            series5.Name = "Zvok";
+            series5.YValuesPerPoint = 6;
+            this.streamingAudioWAVBytes.Series.Add(series5);
             this.streamingAudioWAVBytes.Size = new System.Drawing.Size(117, 128);
             this.streamingAudioWAVBytes.TabIndex = 14;
             this.streamingAudioWAVBytes.Text = "chart1";
@@ -570,18 +575,22 @@
             // 
             // streamingChartZdruzen
             // 
-            chartArea12.Name = "ChartArea1";
-            this.streamingChartZdruzen.ChartAreas.Add(chartArea12);
-            legend12.Name = "Legend1";
-            this.streamingChartZdruzen.Legends.Add(legend12);
-            this.streamingChartZdruzen.Location = new System.Drawing.Point(242, 159);
+            chartArea6.Name = "ChartArea1";
+            this.streamingChartZdruzen.ChartAreas.Add(chartArea6);
+            legend6.Name = "Legend1";
+            this.streamingChartZdruzen.Legends.Add(legend6);
+            this.streamingChartZdruzen.Location = new System.Drawing.Point(242, 172);
             this.streamingChartZdruzen.Name = "streamingChartZdruzen";
-            series12.ChartArea = "ChartArea1";
-            series12.Legend = "Legend1";
-            series12.Name = "Zvok";
-            series12.YValuesPerPoint = 6;
-            this.streamingChartZdruzen.Series.Add(series12);
-            this.streamingChartZdruzen.Size = new System.Drawing.Size(922, 186);
+            series6.ChartArea = "ChartArea1";
+            series6.Legend = "Legend1";
+            series6.Name = "Zvok";
+            series6.YValuesPerPoint = 6;
+            series7.ChartArea = "ChartArea1";
+            series7.Legend = "Legend1";
+            series7.Name = "Average";
+            this.streamingChartZdruzen.Series.Add(series6);
+            this.streamingChartZdruzen.Series.Add(series7);
+            this.streamingChartZdruzen.Size = new System.Drawing.Size(922, 409);
             this.streamingChartZdruzen.TabIndex = 16;
             this.streamingChartZdruzen.Text = "chart1";
             // 
@@ -614,6 +623,23 @@
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(6, 335);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(18, 13);
+            this.label11.TabIndex = 7;
+            this.label11.Text = "N:";
+            // 
+            // N_TB
+            // 
+            this.N_TB.Location = new System.Drawing.Point(29, 332);
+            this.N_TB.Name = "N_TB";
+            this.N_TB.Size = new System.Drawing.Size(100, 20);
+            this.N_TB.TabIndex = 8;
+            this.N_TB.Text = "16";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -645,6 +671,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.recordedAudioWAV)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.streamingAudioWAV)).EndInit();
             this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox4.ResumeLayout(false);
@@ -710,6 +737,8 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TextBox N_TB;
     }
 }
 

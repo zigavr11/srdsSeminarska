@@ -37,18 +37,22 @@ namespace SRDS_SN
         {
             InitializeComponent();
             nastaviNastavitve();
+
+            
             //zaPrikazData = new Queue<double>(Enumerable.Repeat(0.0, n).ToList());
             //myQ = new Queue<double>(Enumerable.Repeat(0.0, n).ToList()); // fill myQ w/ zeros
 
-            naložiTestToolStripMenuItem_Click(null, null);
+            //naložiTestToolStripMenuItem_Click(null, null);
 
             //Y
             streamingAudioPCM.ChartAreas[0].AxisY.Minimum = 0;
             streamingAudioPCM.ChartAreas[0].AxisY.Maximum = 300;
 
-            streamingChartZdruzen.ChartAreas[0].AxisY.Minimum = -1;
-            streamingChartZdruzen.ChartAreas[0].AxisY.Maximum = 1;
-            streamingChartZdruzen.ChartAreas[0].AxisY.Interval = 0.2;
+            
+            //streamingChartZdruzen.ChartAreas[0].AxisY.Minimum = -20000;
+            //streamingChartZdruzen.ChartAreas[0].AxisY.Maximum = 20000;
+            //streamingChartZdruzen.ChartAreas[0].AxisY.Interval = 0.2;
+            
 
             //streamingAudioWAVBytes.ChartAreas[0].AxisY.Minimum = -0.06;
             //streamingAudioWAVBytes.ChartAreas[0].AxisY.Maximum = 0.06;
@@ -176,7 +180,7 @@ namespace SRDS_SN
 
                 for (int i = 0; i < read / 4; i++)
                 {
-                    recordedAudioWAV.Series["Zvok"].Points.Add(BitConverter.ToSingle(buffer, i * 4));
+                    streamingAudioWAV.Series["Zvok"].Points.Add(BitConverter.ToSingle(buffer, i * 4));
                 }
             }
         }
@@ -186,26 +190,38 @@ namespace SRDS_SN
                 return;
             try
             {
-                //streamingAudioPCM.Series["Zvok"].Points.DataBindY(zaPrikazData);
+                streamingAudioPCM.Series["Zvok"].Points.DataBindY(zaPrikazData);
 
                 //https://github.com/swharden/Csharp-Data-Visualization/blob/master/projects/18-09-19_microphone_FFT_revisited/ScottPlotMicrophoneFFT/ScottPlotMicrophoneFFT/Form1.cs
 
-                ustaviThread = false;
-                
                 if (Settings.IzklopiStream)
                     return;
 
                 int BYTES_PER_POINT = 2;
 
                 float[] res = new float[zaPrikazData.Count / BYTES_PER_POINT];
+                
 
                 for (int i = 0; i < zaPrikazData.Count / BYTES_PER_POINT; i++)
                 {
-                    res[i] = BitConverter.ToInt16(zaPrikazData.ToArray(), i * 2) / (float)short.MaxValue;
+                    res[i] = BitConverter.ToInt16(zaPrikazData.ToArray(), i * 2);    
                 }
 
                 streamingChartZdruzen.Series["Zvok"].Points.DataBindY(res);
-                FFT(res);
+
+                //streamingChartZdruzen.Series["Avarage"].Points.DataBindY(res);
+
+                float[] res_ma = new float[res.Length];
+                float ma_zvezdica = res[0];
+
+                for (int i = 0; i < res.Length; i++)
+                {
+                    ma_zvezdica = ma_zvezdica + res[i] - (ma_zvezdica / Settings.N);
+                    res_ma[i] = ma_zvezdica / Settings.N;
+                }
+                streamingChartZdruzen.Series["Average"].Points.DataBindY(res_ma);
+
+                //FFT(res);
 
                 /*
                 using (WaveChannel32 wave = new WaveChannel32(new WaveFileReader("C:/Users/Ziga/Desktop/test2.wav")))
@@ -258,6 +274,8 @@ namespace SRDS_SN
             Settings.SteviloBytov = int.Parse(steviloBytov_TB.Text);
             Settings.Rate = int.Parse(Rate_TB.Text);
             Settings.Bits = int.Parse(Bits_TB.Text);
+
+            Settings.N = int.Parse(N_TB.Text);
 
             streamingAudioPCM.ChartAreas[0].AxisX.Minimum = Settings.StreamingAudioPCM_XMin;
             streamingAudioPCM.ChartAreas[0].AxisX.Maximum = Settings.StreamingAudioPCM_XMax;
