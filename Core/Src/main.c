@@ -65,6 +65,9 @@ uint16_t PCM_Signal[PCM_BUFFER_SIZE];
 uint16_t buffer_stevec = 0;
 
 int stanje = -1;
+//Ce je vrednost signala visoka obcasno skoci na 30000+
+int16_t izjeme;
+int16_t reset = 0;
 
 /* USER CODE END PV */
 
@@ -85,6 +88,7 @@ float absFloat(float floa) {
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 void NastaviLuckeGledeNaGlastnost(int16_t glasnost){
+
 	glasnost = abs(glasnost);
 	if(glasnost < 5000){
 		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
@@ -92,10 +96,10 @@ void NastaviLuckeGledeNaGlastnost(int16_t glasnost){
 	if(glasnost > 5000 && glasnost < 10000){
 		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
 	}
-	if(glasnost > 10000 && glasnost < 20000){
+	if(glasnost > 10000 && glasnost < 15000){
 		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
 	}
-	if(glasnost > 20000){
+	if(glasnost > 15000){
 		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
 	}
 }
@@ -166,9 +170,12 @@ int main(void)
 
 		if(buffer_stevec < AUDIO_BUFFER_SIZE){
 			for(int i = 0; i < 16; i++){
+				if(abs((int16_t)PCM_Signal[i]) > 25000)
+					continue;
 				Buffer[buffer_stevec] = PCM_Signal[i];
 				buffer_stevec++;
 			}
+
 		}
 		else{
 			int16_t res_ma[AUDIO_BUFFER_SIZE];
@@ -176,17 +183,22 @@ int main(void)
 
 			for (int i = 0; i < AUDIO_BUFFER_SIZE; i++)
 			{
+				//MA*[i-1] +X[i] - MA*[i-1]/N
 				ma_zvezdica = ma_zvezdica + Buffer[i] - (ma_zvezdica / N);
-				res_ma[i] = ma_zvezdica / N;
-				//NastaviLuckeGledeNaGlastnost(res_ma[i]);
-			}
 
+				res_ma[i] = ma_zvezdica / N;
+				NastaviLuckeGledeNaGlastnost(res_ma[i]);
+			}
+			// P1 * 2/3 + X * 1/3 = (P * a + X * b)
+			CDC_Transmit_FS((uint8_t*)&Buffer, AUDIO_BUFFER_SIZE * 2);
 			//CDC_Transmit_FS((uint8_t*)&res_ma, AUDIO_BUFFER_SIZE * 2);
-			CDC_Transmit_FS((uint8_t*)&res_ma, AUDIO_BUFFER_SIZE * 2);
 			buffer_stevec = 0;
 		}
-
-
+		reset++;
+		if(reset > 7000){
+			PonastaviLucke();
+			reset = 0;
+		}
 
 		/*for(int i = 0; i < PCM_BUFFER_SIZE; i++){
 			printf("i: %d\n", PCM_Signal[i]);

@@ -49,9 +49,8 @@ namespace SRDS_SN
             streamingAudioPCM.ChartAreas[0].AxisY.Maximum = 300;
 
             
-            //streamingChartZdruzen.ChartAreas[0].AxisY.Minimum = -20000;
-            //streamingChartZdruzen.ChartAreas[0].AxisY.Maximum = 20000;
-            //streamingChartZdruzen.ChartAreas[0].AxisY.Interval = 0.2;
+            streamingChartZdruzen.ChartAreas[0].AxisY.Minimum = -20000;
+            streamingChartZdruzen.ChartAreas[0].AxisY.Maximum = 20000;
             
 
             //streamingAudioWAVBytes.ChartAreas[0].AxisY.Minimum = -0.06;
